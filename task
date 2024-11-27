@@ -1,0 +1,63 @@
+class OrderBook:
+    def __init__(self):
+        # Separate dictionaries for buy and sell orders
+        self.buy_orders = {}
+        self.sell_orders = {}
+
+    def add_order(self, order_type, price, quantity):
+        # Add order to the respective dictionary
+        orders = self.buy_orders if order_type == "Buy" else self.sell_orders
+        if price in orders:
+            orders[price] += quantity
+        else:
+            orders[price] = quantity
+
+    def remove_order(self, order_type, price, quantity):
+        # Remove order from the respective dictionary
+        orders = self.buy_orders if order_type == "Buy" else self.sell_orders
+        if price in orders:
+            orders[price] -= quantity
+            if orders[price] <= 0:  # Remove the price level if quantity is zero
+                del orders[price]
+
+    def get_best_price(self):
+        # Determine the best buy and sell prices
+        best_buy = max(self.buy_orders.keys(), default=None)
+        best_sell = min(self.sell_orders.keys(), default=None)
+        return best_buy, best_sell
+
+    def display_orders(self):
+        # Display the order book
+        print("Buy Orders:")
+        for price in sorted(self.buy_orders.keys(), reverse=True):
+            print(f"Price: {price:.2f}, Quantity: {self.buy_orders[price]}")
+        print("Sell Orders:")
+        for price in sorted(self.sell_orders.keys()):
+            print(f"Price: {price:.2f}, Quantity: {self.sell_orders[price]}")
+        print()
+
+
+# Input processing and demonstration
+order_book = OrderBook()
+
+orders = [
+    ("001", "Buy", "Add", 20.00, 100),
+    ("002", "Sell", "Add", 25.00, 200),
+    ("003", "Buy", "Add", 23.00, 50),
+    ("004", "Buy", "Add", 23.00, 70),
+    ("003", "Buy", "Remove", 23.00, 50),
+    ("005", "Sell", "Add", 28.00, 100),
+]
+
+for order_id, order_type, action, price, quantity in orders:
+    if action == "Add":
+        order_book.add_order(order_type, price, quantity)
+    elif action == "Remove":
+        order_book.remove_order(order_type, price, quantity)
+    
+    # Display orders and best prices after each action
+    order_book.display_orders()
+    best_buy, best_sell = order_book.get_best_price()
+    print(f"Best Buy Price: {best_buy}")
+    print(f"Best Sell Price: {best_sell}")
+    print("-" * 40)
